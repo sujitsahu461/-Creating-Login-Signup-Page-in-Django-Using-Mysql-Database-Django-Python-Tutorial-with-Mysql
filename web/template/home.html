@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background-color: white;
+            padding: 50px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .user-info {
+            color: #666;
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        .logout-btn {
+            padding: 12px 30px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        .upload-form {
+            margin-top: 30px;
+        }
+        .upload-form input[type="file"] {
+            margin: 10px 0;
+        }
+        .upload-form button {
+            padding: 10px 20px;
+            background-color: #667eea;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .upload-form button:hover {
+            background-color: #764ba2;
+        }
+        .profile-pic {
+            margin: 20px 0;
+        }
+        .profile-pic img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid #667eea;
+            display: block;
+            margin: 20px auto;
+        }
+        .no-pic {
+            color: #999;
+            font-size: 14px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Hello {{ request.user }}</h1>
+        
+        <div class="profile-pic">
+            {% if request.user.userprofile.profile_pic %}
+                <img src="{{ request.user.userprofile.profile_pic.url }}" alt="Profile Picture">
+            {% else %}
+                <p class="no-pic">No profile picture yet</p>
+            {% endif %}
+        </div>
+        
+        <form method="post" action="/upload/" enctype="multipart/form-data" class="upload-form">
+            {% csrf_token %}
+            <label>Upload/Change Profile Picture:</label><br>
+            <input type="file" name="pic" accept="image/*" required><br>
+            <button type="submit">upload</button>
+        </form>
+        
+        <br><a href="/signout/">signout</a>
+    </div>
+</body>
+</html>
