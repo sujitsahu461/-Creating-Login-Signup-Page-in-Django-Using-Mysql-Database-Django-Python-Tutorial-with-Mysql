@@ -1,238 +1,304 @@
-# Django Login & Signup Page with MySQL Database
+# ChatApp - Real-Time Messaging Platform
 
-A complete Django web application featuring user authentication with login and signup functionality, integrated with MySQL database and user profile management.
+A full-featured **WhatsApp Web-inspired** real-time chat application built with **Django**, **Django Channels**, and **WebSockets**. Features instant messaging, OTP phone verification, browser notifications, and online presence tracking.
 
-## 📋 Project Overview
+---
 
-This is a Django-based web application that demonstrates:
-- **User Registration** - Complete signup form with validation
-- **User Authentication** - Secure login system
-- **User Profiles** - Profile pictures and user information management
-- **Dashboard** - Home page with user-specific content
-- **Admin Panel** - Django admin interface for content management
+## Features
 
-## 🛠️ Tech Stack
+| Feature | Description |
+|---------|-------------|
+| **Real-Time Chat** | Instant message delivery via WebSockets (Django Channels + Daphne ASGI) |
+| **OTP Phone Verification** | 6-digit OTP sent to console during signup for phone number verification |
+| **Browser Notifications** | Push notifications when receiving messages, even in background tabs |
+| **In-App Toast Alerts** | Slide-in notification toasts with sender info and message preview |
+| **Online Presence** | Real-time online/offline status with green indicator dots |
+| **Profile Management** | Upload profile picture, view/update phone number |
+| **Unread Message Badges** | Unread count badges on contacts in the sidebar |
+| **Contact Search** | Filter contacts by username in the sidebar |
+| **Sign Out Confirmation** | Confirmation modal before signing out |
+| **Auto-Reconnect** | WebSocket auto-reconnects on connection drop |
+| **Responsive Timestamps** | Real IST timestamps on all messages |
 
-- **Backend:** Django 6.0.5
-- **Database:** MySQL (SQLite for development)
-- **Frontend:** HTML, CSS, JavaScript
-- **Python Version:** 3.x
+---
 
-## 📁 Project Structure
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | Python 3.14, Django 6.0 |
+| **WebSocket Server** | Django Channels 4.3 + Daphne (ASGI) |
+| **Database** | MySQL |
+| **Frontend** | HTML5, CSS3, Vanilla JavaScript |
+| **Real-Time** | WebSocket API (browser) + Channels (server) |
+| **Auth** | Django Authentication + Custom OTP |
+| **Channel Layer** | InMemoryChannelLayer (dev) |
+
+---
+
+## Screenshots
+
+### Login Page
+> WhatsApp-inspired dark theme login with username/password
+
+### Chat Interface
+> Sidebar with contacts, online dots, unread badges + chat panel with message bubbles
+
+### OTP Verification
+> 6-digit OTP input with auto-focus and paste support
+
+---
+
+## Project Structure
 
 ```
-web/
-├── manage.py                 # Django management script
-├── db.sqlite3               # SQLite database (development)
-├── template/                # HTML templates
-│   ├── home.html           # Home page
-│   ├── login.html          # Login page
-│   └── signup.html         # Signup page
-├── media/                   # User-uploaded files
-│   └── profile_pics/       # Profile pictures
-├── web/                    # Project settings
-│   ├── settings.py         # Django settings
-│   ├── urls.py             # URL routing
-│   ├── asgi.py             # ASGI config
-│   └── wsgi.py             # WSGI config
-└── webapp/                 # Main application
-    ├── models.py           # Database models
-    ├── views.py            # View functions
-    ├── admin.py            # Admin configuration
-    ├── apps.py             # App configuration
-    └── migrations/         # Database migrations
+Django Python Tutorial with Mysql/
+|-- web/
+|   |-- web/                    # Django project settings
+|   |   |-- settings.py         # Django + Channels config
+|   |   |-- urls.py             # HTTP URL routes
+|   |   |-- asgi.py             # ASGI application (HTTP + WebSocket)
+|   |   |-- wsgi.py             # WSGI fallback
+|   |
+|   |-- webapp/                 # Main application
+|   |   |-- models.py           # UserProfile, Message, OTPCode models
+|   |   |-- views.py            # Auth, chat, OTP, profile views
+|   |   |-- consumers.py        # WebSocket consumers (Chat + Notifications)
+|   |   |-- routing.py          # WebSocket URL routing
+|   |   |-- static/
+|   |   |   |-- webapp/
+|   |   |       |-- home.js     # Frontend WebSocket + UI logic
+|   |   |-- migrations/
+|   |
+|   |-- template/               # HTML templates
+|   |   |-- login.html          # Sign in page
+|   |   |-- signup.html         # Sign up with phone number
+|   |   |-- verify_otp.html     # OTP verification page
+|   |   |-- home.html           # Main chat interface
+|   |
+|   |-- media/                  # Uploaded profile pictures
+|   |-- manage.py
 ```
 
-## 🚀 Getting Started
+---
+
+## Installation & Setup
 
 ### Prerequisites
-- Python 3.7+
-- pip (Python package manager)
-- Django 6.0.5
 
-### Installation
+- Python 3.10+
+- MySQL Server
+- pip
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/sujitsahu461/-Creating-Login-Signup-Page-in-Django-Using-Mysql-Database-Django-Python-Tutorial-with-Mysql.git
-   cd "Django Python Tutorial with Mysql"
-   ```
+### 1. Clone the Repository
 
-2. **Create a virtual environment (optional but recommended)**
-   ```bash
-   python -m venv venv
-   # On Windows:
-   venv\Scripts\activate
-   # On macOS/Linux:
-   source venv/bin/activate
-   ```
-
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-   
-   Or manually install:
-   ```bash
-   pip install Django==6.0.5
-   pip install mysqlclient  # For MySQL support
-   ```
-
-4. **Navigate to project directory**
-   ```bash
-   cd web
-   ```
-
-5. **Apply migrations**
-   ```bash
-   python manage.py migrate
-   ```
-
-6. **Create a superuser (admin account)**
-   ```bash
-   python manage.py createsuperuser
-   ```
-   Follow the prompts to create your admin account.
-
-### Running the Application
-
-1. **Start the development server**
-   ```bash
-   python manage.py runserver
-   ```
-
-2. **Access the application**
-   - **Home Page:** http://127.0.0.1:8000/
-   - **Login Page:** http://127.0.0.1:8000/login/
-   - **Signup Page:** http://127.0.0.1:8000/signup/
-   - **Admin Panel:** http://127.0.0.1:8000/admin/
-
-3. **Stop the server**
-   - Press `CTRL+BREAK` (Windows) or `CTRL+C` (Mac/Linux)
-
-## 🔐 Features
-
-### Authentication System
-- **User Registration:** New users can create accounts with email validation
-- **Login:** Secure login with username/password authentication
-- **Logout:** Users can securely logout
-- **Password Management:** Secure password hashing and validation
-
-### User Profile
-- **Profile Picture:** Users can upload and update their profile pictures
-- **User Information:** Display user details on dashboard
-- **Profile Management:** Edit profile information from admin panel
-
-### Admin Features
-- **User Management:** Add, edit, delete users
-- **Profile Management:** Manage user profiles
-- **Media Management:** Manage uploaded files
-- **Content Administration:** Full Django admin interface
-
-## 🗄️ Database Models
-
-### UserProfile Model
-```python
-class UserProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    profile_pic = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
-    
-    def __str__(self):
-        return f"{self.user.username}'s Profile"
+```bash
+git clone https://github.com/sujitsahu461/-Creating-Login-Signup-Page-in-Django-Using-Mysql-Database-Django-Python-Tutorial-with-Mysql.git
+cd "-Creating-Login-Signup-Page-in-Django-Using-Mysql-Database-Django-Python-Tutorial-with-Mysql"
 ```
 
-## 📝 Usage
+### 2. Install Dependencies
 
-### Creating a New User
-1. Go to the signup page: http://127.0.0.1:8000/signup/
-2. Fill in the registration form
-3. Submit to create your account
-4. Login with your credentials
+```bash
+pip install django mysqlclient channels daphne
+```
 
-### Updating Profile Picture
-1. Login to your account
-2. Go to admin panel: http://127.0.0.1:8000/admin/
-3. Navigate to User Profiles
-4. Update your profile picture
-5. Save changes
+### 3. Configure MySQL Database
 
-## 🔧 Configuration
+Create a MySQL database named `web`:
 
-### Database Configuration
-Edit `web/web/settings.py` to use MySQL instead of SQLite:
+```sql
+CREATE DATABASE web;
+```
+
+Update credentials in `web/web/settings.py` if needed:
 
 ```python
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'your_database_name',
-        'USER': 'your_mysql_user',
-        'PASSWORD': 'your_mysql_password',
+        'NAME': 'web',
+        'USER': 'root',
+        'PASSWORD': 'ROOT',
         'HOST': 'localhost',
-        'PORT': '3306',
     }
 }
 ```
 
-### Static Files
+### 4. Run Migrations
+
 ```bash
-python manage.py collectstatic
-```
-
-## 📚 Learning Resources
-
-- [Django Official Documentation](https://docs.djangoproject.com/)
-- [Django Authentication System](https://docs.djangoproject.com/en/6.0/topics/auth/)
-- [Django Models](https://docs.djangoproject.com/en/6.0/topics/db/models/)
-- [Django Forms](https://docs.djangoproject.com/en/6.0/topics/forms/)
-
-## 🐛 Troubleshooting
-
-### Static Files Warning
-If you see a warning about missing static directory, create it:
-```bash
-mkdir static
-python manage.py collectstatic
-```
-
-### Database Issues
-```bash
-# Reset migrations
-python manage.py migrate zero
+cd web
+python manage.py makemigrations
 python manage.py migrate
+```
 
-# Create fresh superuser
+### 5. Create Superuser (Optional - for Admin panel)
+
+```bash
 python manage.py createsuperuser
 ```
 
-### Port Already in Use
+### 6. Start the Server
+
 ```bash
-python manage.py runserver 8080  # Use different port
+python manage.py runserver
 ```
 
-## 📦 Requirements
+> With `daphne` in `INSTALLED_APPS`, the dev server automatically runs as an **ASGI server** with full WebSocket support.
 
-See `requirements.txt` for all dependencies.
+### 7. Open in Browser
 
-## 🤝 Contributing
-
-Feel free to fork this repository and submit pull requests for any improvements.
-
-## 📄 License
-
-This project is open source and available under the MIT License.
-
-## 👤 Author
-
-**Sujit Sahu**
-- GitHub: [@sujitsahu461](https://github.com/sujitsahu461)
-
-## 📞 Support
-
-For issues, questions, or suggestions, please create an issue on the GitHub repository.
+```
+http://127.0.0.1:8000
+```
 
 ---
 
-**Last Updated:** June 09, 2026
-**Django Version:** 6.0.5
-**Python Version:** 3.x
+## How It Works
+
+### Authentication Flow
+
+```
+Sign Up --> Enter username, phone, password
+        --> OTP generated & printed to terminal
+        --> Enter 6-digit OTP
+        --> Account created & logged in
+
+Sign In --> Username + Password
+        --> Redirected to chat
+```
+
+### WebSocket Architecture
+
+```
+Browser                          Server (Daphne ASGI)
+  |                                    |
+  |-- ws://host/ws/notifications/ ---->| NotificationConsumer
+  |       (global, per-user)           |   - Online/offline tracking
+  |                                    |   - Message notifications
+  |                                    |
+  |-- ws://host/ws/chat/<user_id>/ -->| ChatConsumer
+  |       (per-conversation)           |   - Message history
+  |                                    |   - Real-time send/receive
+  |                                    |   - Read receipts
+```
+
+### Online Presence System
+
+```
+User opens page --> NotificationConsumer.connect()
+                --> Added to online_users set
+                --> Broadcast "online" to all users
+                --> Green dot appears
+
+User closes tab --> NotificationConsumer.disconnect()
+                --> Removed from online_users set
+                --> Broadcast "offline" to all users
+                --> Dot turns grey
+```
+
+---
+
+## API Endpoints
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/` | Home / Chat page |
+| GET/POST | `/signin/` | Login page |
+| GET/POST | `/signup/` | Registration with phone |
+| GET/POST | `/verify_otp/` | OTP verification |
+| GET | `/signout/` | Logout |
+| POST | `/upload/` | Upload profile picture |
+| POST | `/update_phone/` | Update phone number |
+| GET | `/get_profile/` | Get user profile (JSON) |
+| POST | `/send_message/` | Send message (fallback) |
+| GET | `/get_messages/<user_id>/` | Get messages (fallback) |
+| GET | `/get_unread_counts/` | Get unread counts (fallback) |
+
+### WebSocket Endpoints
+
+| URL | Consumer | Purpose |
+|-----|----------|---------|
+| `ws/chat/<user_id>/` | ChatConsumer | 1-to-1 real-time chat |
+| `ws/notifications/` | NotificationConsumer | Notifications + presence |
+
+---
+
+## Models
+
+### UserProfile
+| Field | Type | Description |
+|-------|------|-------------|
+| user | OneToOneField(User) | Linked Django user |
+| profile_pic | ImageField | Profile picture |
+| phone_number | CharField(15) | Phone number |
+
+### Message
+| Field | Type | Description |
+|-------|------|-------------|
+| sender | ForeignKey(User) | Message sender |
+| receiver | ForeignKey(User) | Message receiver |
+| content | TextField | Message text |
+| timestamp | DateTimeField | Auto-set on creation |
+| is_read | BooleanField | Read status |
+
+### OTPCode
+| Field | Type | Description |
+|-------|------|-------------|
+| phone_number | CharField | Phone for OTP |
+| code | CharField(6) | 6-digit OTP code |
+| username | CharField | Pending username |
+| password | CharField | Pending password |
+| is_used | BooleanField | Whether OTP was used |
+
+---
+
+## OTP Testing
+
+Since this uses **console OTP** (no SMS provider), the OTP is printed to the terminal:
+
+```
+==================================================
+  OTP for 9876543210: 483721
+==================================================
+```
+
+> To add real SMS (Twilio, MSG91), replace the `print()` in `views.py` with your SMS API call.
+
+---
+
+## Future Enhancements
+
+- [ ] Group chat support
+- [ ] Media sharing (images, files)
+- [ ] Message editing & deletion
+- [ ] Typing indicators
+- [ ] Voice & video calls (WebRTC)
+- [ ] End-to-end encryption
+- [ ] Redis channel layer (production)
+- [ ] Real SMS OTP (Twilio/MSG91)
+- [ ] Message search
+- [ ] Dark/Light theme toggle
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+---
+
+## Author
+
+**Sujit Sahu** - [@sujitsahu461](https://github.com/sujitsahu461)
+
+---
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
