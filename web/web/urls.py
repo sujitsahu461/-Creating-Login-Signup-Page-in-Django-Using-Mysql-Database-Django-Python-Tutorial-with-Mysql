@@ -13,6 +13,7 @@ urlpatterns = [
     path('signup/', signup),
     path('verify_otp/', verify_otp),
     path('upload/', upload),
+    path('update_phone/', update_phone),
     path('get_profile/', get_profile),
     path('send_message/', send_message),
     path('get_messages/<int:user_id>/', get_messages),

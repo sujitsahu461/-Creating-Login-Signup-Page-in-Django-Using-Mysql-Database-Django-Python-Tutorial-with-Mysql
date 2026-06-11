@@ -145,6 +145,17 @@ def upload(request):
     else:
         return redirect('/signin')
 
+def update_phone(request):
+    if not request.user.is_authenticated:
+        return redirect('/signin')
+    if request.method == 'POST':
+        phone = request.POST.get('phone', '').strip()
+        if phone and len(phone) >= 10:
+            profile, created = UserProfile.objects.get_or_create(user=request.user)
+            profile.phone_number = phone
+            profile.save()
+    return redirect('/')
+
 def get_profile(request):
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'Not authenticated'}, status=401)
