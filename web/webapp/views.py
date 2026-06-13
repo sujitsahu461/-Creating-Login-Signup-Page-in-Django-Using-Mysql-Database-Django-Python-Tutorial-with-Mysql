@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.models import User
 from django.contrib.auth import login, logout, authenticate
 from django.http import JsonResponse
-from .models import UserProfile, Message, OTPCode
+from .models import UserProfile, Message, OTPCode, ChatGroup, GroupMessage
 import json
 
 # Create your views here.
@@ -10,8 +10,9 @@ import json
 def home(request):
     if request.user.is_authenticated:
         users = User.objects.exclude(id=request.user.id)
+        groups = request.user.chat_groups.prefetch_related('members').all()
         UserProfile.objects.get_or_create(user=request.user)
-        return render(request, 'home.html', {'users': users})
+        return render(request, 'home.html', {'users': users, 'groups': groups})
     else:
         return redirect('/signin')
 
@@ -174,6 +175,24 @@ def get_profile(request):
             'pic': '',
         })
 
+
+def create_group(request):
+    if not request.user.is_authenticated:
+        return redirect('/signin')
+    if request.method != 'POST':
+        return JsonResponse({'error': 'Invalid method'}, status=405)
+
+    name = request.POST.get('name', '').strip()
+    member_ids = request.POST.getlist('members')
+    if not name:
+        return redirect('/')
+
+    group = ChatGroup.objects.create(name=name, created_by=request.user)
+    group.members.add(request.user)
+    users = User.objects.filter(id__in=member_ids).exclude(id=request.user.id)
+    group.members.add(*users)
+    return redirect('/')
+
 # Keep these for fallback / initial load
 def send_message(request):
     if not request.user.is_authenticated:
@@ -182,6 +201,7 @@ def send_message(request):
         data = json.loads(request.body)
         receiver_id = data.get('receiver_id')
         content = data.get('content', '').strip()
+        message_type = data.get('message_type', 'text')
         if not content:
             return JsonResponse({'error': 'Empty message'}, status=400)
         try:
@@ -189,11 +209,13 @@ def send_message(request):
             msg = Message.objects.create(
                 sender=request.user,
                 receiver=receiver,
-                content=content
+                content=content,
+                message_type=message_type,
             )
             return JsonResponse({
                 'id': msg.id,
                 'content': msg.content,
+                'message_type': msg.message_type,
                 'timestamp': msg.timestamp.strftime('%H:%M'),
                 'sender_id': request.user.id,
             })
@@ -223,6 +245,7 @@ def get_messages(request, user_id):
             data.append({
                 'id': msg.id,
                 'content': msg.content,
+                'message_type': msg.message_type,
                 'timestamp': msg.timestamp.strftime('%H:%M'),
                 'sender_id': msg.sender.id,
                 'sender_username': msg.sender.username,
@@ -240,3 +263,29 @@ def get_unread_counts(request):
     for u in users:
         counts[u.id] = Message.objects.filter(sender=u, receiver=request.user, is_read=False).count()
     return JsonResponse({'counts': counts})
+
+
+def get_group_messages(request, group_id):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'Not authenticated'}, status=401)
+    try:
+        group = ChatGroup.objects.get(id=group_id, members=request.user)
+    except ChatGroup.DoesNotExist:
+        return JsonResponse({'error': 'Group not found'}, status=404)
+
+    data = []
+    for msg in GroupMessage.objects.filter(group=group).select_related('sender', 'sender__userprofile'):
+        try:
+            pic_url = msg.sender.userprofile.profile_pic.url if msg.sender.userprofile.profile_pic else ''
+        except Exception:
+            pic_url = ''
+        data.append({
+            'id': msg.id,
+            'content': msg.content,
+            'message_type': msg.message_type,
+            'timestamp': msg.timestamp.strftime('%H:%M'),
+            'sender_id': msg.sender.id,
+            'sender_username': msg.sender.username,
+            'sender_pic': pic_url,
+        })
+    return JsonResponse({'messages': data})

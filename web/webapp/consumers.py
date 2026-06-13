@@ -3,7 +3,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import User
 from django.utils import timezone
-from .models import Message, UserProfile
+from .models import Message, UserProfile, ChatGroup, GroupMessage
 
 # Track online users globally
 online_users = set()
@@ -52,12 +52,21 @@ class ChatConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         data = json.loads(text_data)
+        if data.get('type') == 'call_signal':
+            await self.channel_layer.group_send(self.room_name, {
+                'type': 'call_signal',
+                'sender_id': self.user.id,
+                'signal': data.get('signal', {}),
+            })
+            return
+
         content = data.get('message', '').strip()
+        message_type = data.get('message_type', 'text')
         if not content:
             return
 
         # Save message to DB
-        msg_data = await self.save_message(content)
+        msg_data = await self.save_message(content, message_type)
 
         # Broadcast to chat room
         await self.channel_layer.group_send(self.room_name, {
@@ -75,6 +84,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender_username': self.user.username,
                     'sender_pic': msg_data['sender_pic'],
                     'content': content[:100],
+                    'message_type': message_type,
                     'timestamp': msg_data['timestamp'],
                 },
             }
@@ -86,13 +96,23 @@ class ChatConsumer(AsyncWebsocketConsumer):
             'message': event['message'],
         }))
 
+    async def call_signal(self, event):
+        if event['sender_id'] == self.user.id:
+            return
+        await self.send(text_data=json.dumps({
+            'type': 'call_signal',
+            'sender_id': event['sender_id'],
+            'signal': event['signal'],
+        }))
+
     @database_sync_to_async
-    def save_message(self, content):
+    def save_message(self, content, message_type='text'):
         receiver = User.objects.get(id=self.other_user_id)
         msg = Message.objects.create(
             sender=self.user,
             receiver=receiver,
             content=content,
+            message_type=message_type,
         )
         try:
             pic_url = self.user.userprofile.profile_pic.url if self.user.userprofile.profile_pic else ''
@@ -102,6 +122,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         return {
             'id': msg.id,
             'content': msg.content,
+            'message_type': msg.message_type,
             'timestamp': format_time(msg.timestamp),
             'date': format_date(msg.timestamp),
             'sender_id': self.user.id,
@@ -132,6 +153,135 @@ class ChatConsumer(AsyncWebsocketConsumer):
             data.append({
                 'id': msg.id,
                 'content': msg.content,
+                'message_type': msg.message_type,
+                'timestamp': format_time(msg.timestamp),
+                'date': format_date(msg.timestamp),
+                'sender_id': msg.sender.id,
+                'sender_username': msg.sender.username,
+                'sender_pic': pic_url,
+            })
+        return data
+
+
+class GroupChatConsumer(AsyncWebsocketConsumer):
+    """Handles group chat WebSocket connections."""
+
+    async def connect(self):
+        self.user = self.scope['user']
+        if not self.user.is_authenticated:
+            await self.close()
+            return
+
+        self.group_id = int(self.scope['url_route']['kwargs']['group_id'])
+        is_member = await self.is_group_member()
+        if not is_member:
+            await self.close()
+            return
+
+        self.room_name = f'group_{self.group_id}'
+        await self.channel_layer.group_add(self.room_name, self.channel_name)
+        await self.accept()
+
+        messages = await self.get_messages()
+        await self.send(text_data=json.dumps({
+            'type': 'history',
+            'messages': messages,
+        }))
+
+    async def disconnect(self, close_code):
+        if hasattr(self, 'room_name'):
+            await self.channel_layer.group_discard(self.room_name, self.channel_name)
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        content = data.get('message', '').strip()
+        message_type = data.get('message_type', 'text')
+        if not content:
+            return
+
+        msg_data = await self.save_message(content, message_type)
+        await self.channel_layer.group_send(self.room_name, {
+            'type': 'chat_message',
+            'message': msg_data,
+        })
+
+        member_ids = await self.get_member_ids()
+        for member_id in member_ids:
+            if member_id == self.user.id:
+                continue
+            await self.channel_layer.group_send(
+                f'notifications_{member_id}',
+                {
+                    'type': 'notify',
+                    'message': {
+                        'sender_id': self.user.id,
+                        'sender_username': self.user.username,
+                        'sender_pic': msg_data['sender_pic'],
+                        'group_id': self.group_id,
+                        'group_name': msg_data['group_name'],
+                        'content': content[:100],
+                        'message_type': message_type,
+                        'timestamp': msg_data['timestamp'],
+                    },
+                }
+            )
+
+    async def chat_message(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'message',
+            'message': event['message'],
+        }))
+
+    @database_sync_to_async
+    def is_group_member(self):
+        return ChatGroup.objects.filter(id=self.group_id, members=self.user).exists()
+
+    @database_sync_to_async
+    def get_member_ids(self):
+        return list(ChatGroup.objects.get(id=self.group_id).members.values_list('id', flat=True))
+
+    @database_sync_to_async
+    def save_message(self, content, message_type='text'):
+        group = ChatGroup.objects.get(id=self.group_id, members=self.user)
+        msg = GroupMessage.objects.create(
+            group=group,
+            sender=self.user,
+            content=content,
+            message_type=message_type,
+        )
+        try:
+            pic_url = self.user.userprofile.profile_pic.url if self.user.userprofile.profile_pic else ''
+        except Exception:
+            pic_url = ''
+
+        return {
+            'id': msg.id,
+            'group_id': group.id,
+            'group_name': group.name,
+            'content': msg.content,
+            'message_type': msg.message_type,
+            'timestamp': format_time(msg.timestamp),
+            'date': format_date(msg.timestamp),
+            'sender_id': self.user.id,
+            'sender_username': self.user.username,
+            'sender_pic': pic_url,
+        }
+
+    @database_sync_to_async
+    def get_messages(self):
+        group = ChatGroup.objects.get(id=self.group_id, members=self.user)
+        data = []
+        for msg in group.messages.select_related('sender', 'sender__userprofile').all():
+            try:
+                pic_url = msg.sender.userprofile.profile_pic.url if msg.sender.userprofile.profile_pic else ''
+            except Exception:
+                pic_url = ''
+            data.append({
+                'id': msg.id,
+                'group_id': group.id,
+                'group_name': group.name,
+                'content': msg.content,
+                'message_type': msg.message_type,
                 'timestamp': format_time(msg.timestamp),
                 'date': format_date(msg.timestamp),
                 'sender_id': msg.sender.id,

@@ -611,6 +611,201 @@
             display: none;
         }
         .conn-status.disconnected { display: block; background: #ff4444; color: white; }
+
+        body.light-mode {
+            background: #eef2f4;
+        }
+        body.light-mode .sidebar,
+        body.light-mode .sidebar-header,
+        body.light-mode .search-bar,
+        body.light-mode .chat-header,
+        body.light-mode .message-input-area,
+        body.light-mode .modal,
+        body.light-mode .notification-toast {
+            background: #ffffff;
+            border-color: #dce3e7;
+        }
+        body.light-mode .chat-panel { background: #f4f7f8; }
+        body.light-mode .contact-item { border-color: #edf1f3; }
+        body.light-mode .contact-item:hover,
+        body.light-mode .contact-item.active,
+        body.light-mode .icon-btn:hover,
+        body.light-mode .search-bar input,
+        body.light-mode .message-input-area input,
+        body.light-mode .file-label,
+        body.light-mode .signout-modal .btn-cancel {
+            background: #eef3f5;
+        }
+        body.light-mode .sidebar-title,
+        body.light-mode .contact-name,
+        body.light-mode .chat-header-name,
+        body.light-mode .welcome-screen h2,
+        body.light-mode .modal h3,
+        body.light-mode .message-bubble.received {
+            color: #1f2c33;
+        }
+        body.light-mode .message-bubble.received { background: #ffffff; }
+        body.light-mode .message-bubble.sent { background: #d9fdd3; color: #1f2c33; }
+        body.light-mode .message-bubble.sent .msg-time { color: #667781; }
+        body.light-mode .contact-last-msg,
+        body.light-mode .contact-time,
+        body.light-mode .welcome-screen,
+        body.light-mode .modal-phone,
+        body.light-mode .notification-toast .toast-msg {
+            color: #667781;
+        }
+        body.light-mode .icon-btn { color: #54656f; }
+
+        .section-label {
+            color: #8696a0;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0;
+            padding: 14px 16px 6px;
+            text-transform: uppercase;
+        }
+
+        .group-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: #00a884;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .chat-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tool-btn {
+            background: none;
+            border: none;
+            color: #aebac1;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s, color 0.2s;
+            font-size: 18px;
+        }
+        .tool-btn:hover { background: #2a3942; color: #e9edef; }
+        body.light-mode .tool-btn { color: #54656f; }
+        body.light-mode .tool-btn:hover { background: #eef3f5; color: #1f2c33; }
+
+        .voice-btn.recording {
+            background: #ff4444;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.07); }
+            100% { transform: scale(1); }
+        }
+
+        .sender-name {
+            display: block;
+            color: #00a884;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .voice-player {
+            width: 240px;
+            max-width: 100%;
+            display: block;
+            margin-top: 4px;
+        }
+
+        .call-card {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .modal .field {
+            background: #2a3942;
+            border: 1px solid #2a3942;
+            border-radius: 8px;
+            padding: 11px 12px;
+            color: #e9edef;
+            font-size: 14px;
+            outline: none;
+            font-family: 'Inter', sans-serif;
+        }
+        body.light-mode .modal .field {
+            background: #eef3f5;
+            border-color: #dce3e7;
+            color: #1f2c33;
+        }
+        .member-picker {
+            max-height: 180px;
+            overflow-y: auto;
+            text-align: left;
+            background: #111b21;
+            border-radius: 8px;
+            padding: 8px;
+        }
+        body.light-mode .member-picker { background: #eef3f5; }
+        .member-picker label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #e9edef;
+            padding: 8px;
+            font-size: 14px;
+        }
+        body.light-mode .member-picker label { color: #1f2c33; }
+
+        .call-modal video {
+            width: 100%;
+            max-height: 260px;
+            background: #111b21;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .profile-view-photo {
+            width: 220px;
+            height: 220px;
+            border-radius: 14px;
+            object-fit: cover;
+            display: block;
+            margin: 0 auto 16px;
+            border: 1px solid #2a3942;
+            background: #111b21;
+        }
+        .profile-view-placeholder {
+            width: 220px;
+            height: 220px;
+            border-radius: 14px;
+            background: #00a884;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 72px;
+            font-weight: 700;
+        }
+        .avatar-wrapper.profile-trigger,
+        #chatHeaderAvatar.profile-trigger,
+        .chat-header-info.profile-trigger {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -641,6 +836,16 @@
         <span class="sidebar-title">ChatApp</span>
 
         <div class="header-icons">
+            <button class="icon-btn" title="New Group" onclick="openGroupModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5C15 14.17 10.33 13 8 13zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                </svg>
+            </button>
+            <button class="icon-btn" title="Toggle Theme" onclick="toggleTheme()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6V2l5 5-5 5V8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4h2c0 3.31-2.69 6-6 6z"/>
+                </svg>
+            </button>
             <button class="icon-btn" title="Sign Out" onclick="openSignoutModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5-5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
@@ -654,9 +859,26 @@
     </div>
 
     <div class="contacts-list" id="contactsList">
+        {% if groups %}
+        <div class="section-label">Groups</div>
+        {% endif %}
+        {% for group in groups %}
+        <div class="contact-item group-item" id="group-{{ group.id }}" data-kind="group" data-groupid="{{ group.id }}" data-name="{{ group.name }}" onclick="openGroupFromElement(this)">
+            <div class="group-avatar">{{ group.name|first|upper }}</div>
+            <div class="contact-info">
+                <div class="contact-name">{{ group.name }}</div>
+                <div class="contact-last-msg" id="last-msg-group-{{ group.id }}">{{ group.members.count }} members</div>
+            </div>
+            <div class="contact-meta">
+                <span class="contact-time" id="last-time-group-{{ group.id }}"></span>
+            </div>
+        </div>
+        {% endfor %}
+
+        <div class="section-label">Chats</div>
         {% for user in users %}
-        <div class="contact-item" id="contact-{{ user.id }}" data-userid="{{ user.id }}" data-username="{{ user.username }}" data-pic="{% if user.userprofile.profile_pic %}{{ user.userprofile.profile_pic.url }}{% endif %}" onclick="openChat({{ user.id }}, '{{ user.username }}', '{% if user.userprofile.profile_pic %}{{ user.userprofile.profile_pic.url }}{% endif %}')">
-            <div class="avatar-wrapper">
+        <div class="contact-item" id="contact-{{ user.id }}" data-userid="{{ user.id }}" data-username="{{ user.username }}" data-pic="{% if user.userprofile.profile_pic %}{{ user.userprofile.profile_pic.url }}{% endif %}" onclick="openContactFromElement(this)">
+            <div class="avatar-wrapper profile-trigger" onclick="openProfileFromContact(event, this)" data-username="{{ user.username }}" data-pic="{% if user.userprofile.profile_pic %}{{ user.userprofile.profile_pic.url }}{% endif %}">
                 {% if user.userprofile.profile_pic %}
                     <img class="contact-avatar" src="{{ user.userprofile.profile_pic.url }}" alt="{{ user.username }}">
                 {% else %}
@@ -692,15 +914,26 @@
     <div id="chatArea" style="display:none; flex-direction:column; height:100%;">
         <div class="chat-header" id="chatHeader">
             <div id="chatHeaderAvatar"></div>
-            <div class="chat-header-info">
+            <div class="chat-header-info" id="chatHeaderInfo">
                 <div class="chat-header-name" id="chatHeaderName"></div>
                 <div class="chat-header-status" id="chatHeaderStatus" style="color:#8696a0">offline</div>
+            </div>
+            <div class="chat-actions">
+                <button class="tool-btn" title="Voice call" onclick="startCall('audio')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/></svg>
+                </button>
+                <button class="tool-btn" title="Video call" onclick="startCall('video')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M17 10.5V6c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v12c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-4.5l4 4v-11l-4 4z"/></svg>
+                </button>
             </div>
         </div>
 
         <div class="messages-area" id="messagesArea"></div>
 
         <div class="message-input-area">
+            <button class="tool-btn voice-btn" id="voiceBtn" title="Voice note" onclick="toggleVoiceRecording()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="21" height="21" viewBox="0 0 24 24" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.49 6-3.31 6-6.72h-1.7z"/></svg>
+            </button>
             <input type="text" id="messageInput" placeholder="Type a message" onkeydown="handleKeyDown(event)">
             <button class="send-btn" onclick="sendMessage()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
@@ -708,6 +941,16 @@
                 </svg>
             </button>
         </div>
+    </div>
+</div>
+
+<!-- ========== CONTACT PROFILE PHOTO MODAL ========== -->
+<div class="modal-overlay" id="contactProfileModal">
+    <div class="modal">
+        <h3 id="contactProfileTitle">Profile</h3>
+        <div id="contactProfilePhotoArea"></div>
+        <div class="modal-username" id="contactProfileUsername"></div>
+        <button class="modal-close" onclick="closeContactProfileModal()">Close</button>
     </div>
 </div>
 
@@ -744,6 +987,38 @@
             <button class="upload-btn" type="submit">Save Photo</button>
         </form>
         <button class="modal-close" onclick="closeProfileModal()">Cancel</button>
+    </div>
+</div>
+
+<!-- ========== CREATE GROUP MODAL ========== -->
+<div class="modal-overlay" id="groupModal">
+    <div class="modal">
+        <h3>Create Group</h3>
+        <form method="post" action="/create_group/">
+            {% csrf_token %}
+            <input class="field" type="text" name="name" placeholder="Group name" maxlength="80" required>
+            <div class="member-picker">
+                {% for user in users %}
+                <label>
+                    <input type="checkbox" name="members" value="{{ user.id }}">
+                    <span>{{ user.username }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <button class="upload-btn" type="submit">Create Group</button>
+        </form>
+        <button class="modal-close" onclick="closeGroupModal()">Cancel</button>
+    </div>
+</div>
+
+<!-- ========== CALL MODAL ========== -->
+<div class="modal-overlay call-modal" id="callModal">
+    <div class="modal">
+        <h3 id="callTitle">Call</h3>
+        <video id="remoteVideo" autoplay playsinline style="display:none"></video>
+        <video id="localVideo" autoplay muted playsinline style="display:none"></video>
+        <p id="callStatus" style="color:#8696a0; font-size:14px; margin-bottom:18px;">Starting...</p>
+        <button class="btn-confirm" onclick="endCall()" style="background:#ff4444; color:white; border:none; border-radius:8px; padding:12px 16px; font-weight:600; cursor:pointer; width:100%;">End Call</button>
     </div>
 </div>
 

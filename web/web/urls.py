@@ -15,8 +15,10 @@ urlpatterns = [
     path('upload/', upload),
     path('update_phone/', update_phone),
     path('get_profile/', get_profile),
+    path('create_group/', create_group),
     path('send_message/', send_message),
     path('get_messages/<int:user_id>/', get_messages),
+    path('get_group_messages/<int:group_id>/', get_group_messages),
     path('get_unread_counts/', get_unread_counts),
 ]
 

@@ -1,6 +1,6 @@
 # ChatApp - Real-Time Messaging Platform
 
-A full-featured **WhatsApp Web-inspired** real-time chat application built with **Django**, **Django Channels**, and **WebSockets**. Features instant messaging, OTP phone verification, browser notifications, and online presence tracking.
+A full-featured **WhatsApp Web-inspired** real-time chat application built with **Django**, **Django Channels**, and **WebSockets**. Features instant messaging, group chats, voice notes, direct voice/video call signaling, OTP phone verification, browser notifications, profile photo viewing, and online presence tracking.
 
 ---
 
@@ -9,11 +9,15 @@ A full-featured **WhatsApp Web-inspired** real-time chat application built with 
 | Feature | Description |
 |---------|-------------|
 | **Real-Time Chat** | Instant message delivery via WebSockets (Django Channels + Daphne ASGI) |
+| **Group Chat** | Create groups, add members, and exchange real-time group messages |
+| **Voice Notes** | Record and send browser microphone voice notes inside chats |
+| **Voice & Video Calls** | Direct-chat WebRTC signaling for browser voice/video sessions |
 | **OTP Phone Verification** | 6-digit OTP sent to console during signup for phone number verification |
 | **Browser Notifications** | Push notifications when receiving messages, even in background tabs |
 | **In-App Toast Alerts** | Slide-in notification toasts with sender info and message preview |
 | **Online Presence** | Real-time online/offline status with green indicator dots |
-| **Profile Management** | Upload profile picture, view/update phone number |
+| **Profile Management** | Upload profile picture, view/update phone number, and view contact profile photos |
+| **Dark/Light Theme** | Toggle between dark and light chat themes |
 | **Unread Message Badges** | Unread count badges on contacts in the sidebar |
 | **Contact Search** | Filter contacts by username in the sidebar |
 | **Sign Out Confirmation** | Confirmation modal before signing out |
@@ -61,9 +65,9 @@ Django Python Tutorial with Mysql/
 |   |   |-- wsgi.py             # WSGI fallback
 |   |
 |   |-- webapp/                 # Main application
-|   |   |-- models.py           # UserProfile, Message, OTPCode models
-|   |   |-- views.py            # Auth, chat, OTP, profile views
-|   |   |-- consumers.py        # WebSocket consumers (Chat + Notifications)
+|   |   |-- models.py           # UserProfile, Message, ChatGroup, GroupMessage, OTPCode models
+|   |   |-- views.py            # Auth, chat, group, OTP, profile views
+|   |   |-- consumers.py        # WebSocket consumers (direct chat, group chat, notifications)
 |   |   |-- routing.py          # WebSocket URL routing
 |   |   |-- static/
 |   |   |   |-- webapp/
@@ -93,14 +97,14 @@ Django Python Tutorial with Mysql/
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/sujitsahu461/-Creating-Login-Signup-Page-in-Django-Using-Mysql-Database-Django-Python-Tutorial-with-Mysql.git
-cd "-Creating-Login-Signup-Page-in-Django-Using-Mysql-Database-Django-Python-Tutorial-with-Mysql"
+git clone https://github.com/sujitsahu461/ChatApp---Real-Time-Messaging-Platform.git
+cd "ChatApp---Real-Time-Messaging-Platform"
 ```
 
 ### 2. Install Dependencies
 
 ```bash
-pip install django mysqlclient channels daphne
+pip install -r requirements.txt
 ```
 
 ### 3. Configure MySQL Database
@@ -182,6 +186,13 @@ Browser                          Server (Daphne ASGI)
   |       (per-conversation)           |   - Message history
   |                                    |   - Real-time send/receive
   |                                    |   - Read receipts
+  |                                    |
+  |-- ws://host/ws/group/<group_id>/ ->| GroupChatConsumer
+  |       (per-group room)             |   - Group message history
+  |                                    |   - Group broadcast delivery
+  |                                    |
+  |-- call_signal over direct chat ---->| ChatConsumer
+          (WebRTC signaling)           |   - Offer/answer/ICE relay
 ```
 
 ### Online Presence System
@@ -212,8 +223,10 @@ User closes tab --> NotificationConsumer.disconnect()
 | POST | `/upload/` | Upload profile picture |
 | POST | `/update_phone/` | Update phone number |
 | GET | `/get_profile/` | Get user profile (JSON) |
+| POST | `/create_group/` | Create a chat group |
 | POST | `/send_message/` | Send message (fallback) |
 | GET | `/get_messages/<user_id>/` | Get messages (fallback) |
+| GET | `/get_group_messages/<group_id>/` | Get group messages (fallback) |
 | GET | `/get_unread_counts/` | Get unread counts (fallback) |
 
 ### WebSocket Endpoints
@@ -221,6 +234,7 @@ User closes tab --> NotificationConsumer.disconnect()
 | URL | Consumer | Purpose |
 |-----|----------|---------|
 | `ws/chat/<user_id>/` | ChatConsumer | 1-to-1 real-time chat |
+| `ws/group/<group_id>/` | GroupChatConsumer | Real-time group chat |
 | `ws/notifications/` | NotificationConsumer | Notifications + presence |
 
 ---
@@ -240,8 +254,26 @@ User closes tab --> NotificationConsumer.disconnect()
 | sender | ForeignKey(User) | Message sender |
 | receiver | ForeignKey(User) | Message receiver |
 | content | TextField | Message text |
+| message_type | CharField | `text`, `voice`, or `call` |
 | timestamp | DateTimeField | Auto-set on creation |
 | is_read | BooleanField | Read status |
+
+### ChatGroup
+| Field | Type | Description |
+|-------|------|-------------|
+| name | CharField(80) | Group name |
+| created_by | ForeignKey(User) | Group creator |
+| members | ManyToManyField(User) | Group members |
+| created_at | DateTimeField | Auto-set on creation |
+
+### GroupMessage
+| Field | Type | Description |
+|-------|------|-------------|
+| group | ForeignKey(ChatGroup) | Target group |
+| sender | ForeignKey(User) | Message sender |
+| content | TextField | Message text, voice data URL, or call event |
+| message_type | CharField | `text`, `voice`, or `call` |
+| timestamp | DateTimeField | Auto-set on creation |
 
 ### OTPCode
 | Field | Type | Description |
@@ -270,16 +302,14 @@ Since this uses **console OTP** (no SMS provider), the OTP is printed to the ter
 
 ## Future Enhancements
 
-- [ ] Group chat support
 - [ ] Media sharing (images, files)
 - [ ] Message editing & deletion
 - [ ] Typing indicators
-- [ ] Voice & video calls (WebRTC)
+- [ ] Production-grade group calling with TURN/STUN configuration
 - [ ] End-to-end encryption
 - [ ] Redis channel layer (production)
 - [ ] Real SMS OTP (Twilio/MSG91)
 - [ ] Message search
-- [ ] Dark/Light theme toggle
 
 ---
 
